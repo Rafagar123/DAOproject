@@ -1,7 +1,7 @@
 package DAOs;
 
 import DbManager.DbManager;
-import Models.Acceso;
+import Models.Clasificacion;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -11,38 +11,29 @@ import DbManager.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-
-public class AccesoDAO extends DAO<Acceso>{
+public class ClasificacionDAO extends DAO<Clasificacion>{
     private Connection db;
-    private static final String INSERT = "INSERT INTO acceso"
-            + "(id_acceso, id_filmografia, id_cuenta, fecha_acceso, tipo_suscripcion_id) VALUES (?,?,?,?,?)";
-    private static final String LISTALL = "SELECT * FROM acceso";
-    private static final String LISTONE = "SELECT * FROM acceso WHERE id_acceso = ?";
-    private static final String DELETE = "DELETE FROM acceso WHERE id_acceso = ?";
-    private static final String UPDATE = "UPDATE acceso SET id_filmografia= ?, "
-            + "id_cuenta= ?, fecha_acceso = ?, tipo_suscripcion_id= ? WHERE id_acceso = ?";
+    private static final String INSERT = "INSERT INTO clasificacion (id, nombre) VALUES (?,?)";
+    private static final String LISTALL = "SELECT * FROM clasificacion";
+    private static final String LISTONE = "SELECT * FROM clasificacion WHERE id = ?";
+    private static final String DELETE = "DELETE FROM clasificacion WHERE id = ?";
+    private static final String UPDATE = "UPDATE clasificacion SET nombre = ? WHERE id = ?";
 
-    
-    public AccesoDAO(DbManager db) {
+    public ClasificacionDAO(DbManager db) {
         this.db = db.getConnection();
         logger.info("Se ha establecido la conexión");
-    };
+    }
+    
 
     @Override
-    protected void cargarDatos(String met, PreparedStatement stmt, Acceso acceso) throws SQLException {
+    protected void cargarDatos(String met, PreparedStatement stmt, Clasificacion clasificacion) throws SQLException {
         try{
             if (met == "insert"){
-                stmt.setInt(1, acceso.getId_acceso());            
-                stmt.setInt(2, acceso.getId_filmografia());
-                stmt.setInt(3, acceso.getId_cuenta());
-                stmt.setDate(4, acceso.getFecha_acceso());
-                stmt.setInt(5, acceso.getTipo_suscripcion_id());
+                stmt.setInt(1, clasificacion.getId());            
+                stmt.setString(2, clasificacion.getNombre());
             } else if (met == "update"){
-                stmt.setInt(5, acceso.getId_acceso());            
-                stmt.setInt(1, acceso.getId_filmografia());
-                stmt.setInt(2, acceso.getId_cuenta());
-                stmt.setDate(3, acceso.getFecha_acceso());
-                stmt.setInt(4, acceso.getTipo_suscripcion_id());
+                stmt.setInt(2, clasificacion.getId());            
+                stmt.setString(1, clasificacion.getNombre());
             }
         }catch (SQLException e){
             logger.error("Error cargando los datos");
@@ -51,22 +42,19 @@ public class AccesoDAO extends DAO<Acceso>{
     };
 
     @Override
-    protected Acceso crear(ResultSet rs) throws SQLException {
+    protected Clasificacion crear(ResultSet rs) throws SQLException {
         try{
-            return new Acceso(
-                rs.getInt("id_acceso"),
-                rs.getInt("id_filmografia"),
-                rs.getInt("id_cuenta"),
-                rs.getDate("fecha_acceso"),
-                rs.getInt("tipo_suscripcion_id"));
+            return new Clasificacion(
+                rs.getInt("id"),
+                rs.getString("nombre"));
         }catch (SQLException e){
             logger.error("Error creando elemento");
-            throw new SQLException ("Error creando elemento", e.getMessage());
-        }     
+            throw new SQLException ("Error creando Filmografia", e.getMessage());
+        }    
     };
 
     @Override
-    public Acceso listOne(int id) throws SQLException {
+    public Clasificacion listOne(int id) throws SQLException {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         
@@ -75,7 +63,7 @@ public class AccesoDAO extends DAO<Acceso>{
             stmt.setInt(1, id);
             rs = stmt.executeQuery();
             db.commit();
-            System.out.print(crear(rs));
+            System.out.print(crear(rs)); 
             logger.info("Se ha hecho un ListOne");
             return crear(rs);
         }catch(SQLException e){
@@ -84,14 +72,14 @@ public class AccesoDAO extends DAO<Acceso>{
             throw new SQLException("Error listando elemento", e.getMessage());
         }finally {
             cerrarEstados(stmt, rs);
-        }    
+        }
     };
 
     @Override
-    public List<Acceso> listAll() throws SQLException {
+    public List<Clasificacion> listAll() throws SQLException {
         PreparedStatement stmt = null;
         ResultSet rs = null;
-        ArrayList<Acceso> list = new ArrayList<Acceso>();
+        ArrayList<Clasificacion> list = new ArrayList<Clasificacion>();
         
         try{
             stmt = db.prepareStatement(LISTALL);
@@ -102,7 +90,7 @@ public class AccesoDAO extends DAO<Acceso>{
             }
             System.out.println(list);
             logger.info("Se ha hecho un ListAll");
-            return list; 
+            return list;        
         }catch(SQLException e){
             hacerRollback(db);
             logger.error("Error listando elementos");
@@ -113,12 +101,12 @@ public class AccesoDAO extends DAO<Acceso>{
     };
 
     @Override
-    public void insert(Acceso acceso) throws SQLException {
+    public void insert(Clasificacion clasificacion) throws SQLException {
         PreparedStatement stmt = null;
 
         try{
             stmt = db.prepareStatement(INSERT);
-            cargarDatos("insert", stmt, acceso);
+            cargarDatos("insert", stmt, clasificacion);
             stmt.executeUpdate();
             logger.info("Se ha hecho un Insert");
             db.commit();
@@ -130,20 +118,17 @@ public class AccesoDAO extends DAO<Acceso>{
             cerrarEstados(stmt, null);
         }
     };
-
     @Override
-    public void update(Acceso acceso) throws SQLException {
+    public void update(Clasificacion clasificacion) throws SQLException {
         PreparedStatement stmt = null;
         
         try{
             stmt = db.prepareStatement(INSERT);
-            cargarDatos("update", stmt, acceso);
+            cargarDatos("update", stmt, clasificacion);
             stmt.executeUpdate();
             db.commit();
-            logger.info("Se ha hecho un Update");
         }catch(SQLException e){
             hacerRollback(db);
-            logger.error("Error actualizando elemento");
             throw new SQLException("Error actualizando elemento", e.getMessage());
         }finally {
             cerrarEstados(stmt, null);
@@ -158,15 +143,12 @@ public class AccesoDAO extends DAO<Acceso>{
             stmt.setInt(1, id);
             stmt.executeUpdate();
             db.commit();
-            logger.info("Se ha hecho un Delete");
         }catch(SQLException e){
             hacerRollback(db);
-            logger.error("Error eliminando elemento");
             throw new SQLException("Error eliminando elemento", e.getMessage());
         }finally {
             cerrarEstados(stmt, null);
         }
     };
-        
-   
+  
 }

@@ -69,15 +69,16 @@ public class FilmoDAO extends DAO<Filmografia>{
     public Filmografia listOne(int id) throws SQLException {
         PreparedStatement stmt = null;
         ResultSet rs = null;
+        Filmografia film = new Filmografia();
         
         try{
             stmt = db.prepareStatement(LISTONE);
             stmt.setInt(1, id);
             rs = stmt.executeQuery();
+            rs.next();
             db.commit();
-            System.out.print(crear(rs));
             logger.info("Se ha hecho un ListOne");
-            return crear(rs);
+            film = crear(rs);
         }catch(SQLException e){
             hacerRollback(db);
             logger.error("Error listando elemento");
@@ -85,6 +86,7 @@ public class FilmoDAO extends DAO<Filmografia>{
         }finally {
             cerrarEstados(stmt, rs);
         }
+        return film;
     };
 
     @Override
@@ -100,9 +102,7 @@ public class FilmoDAO extends DAO<Filmografia>{
             while(rs.next()){
                 list.add(crear(rs));
             }
-            System.out.println(list);
             logger.info("Se ha hecho un ListAll");
-            return list; 
         }catch(SQLException e){
             hacerRollback(db);
             logger.error("Error listando elementos");
@@ -110,6 +110,7 @@ public class FilmoDAO extends DAO<Filmografia>{
         }finally { // TEN EN CUENTA QUE EN UN TRY CATCH, EL FINALLY SIEMPRE SE EJECUTA AL FINAL. POR ESO MISMO, QUEREMOS QUE SIEMPRE SE CIERRA EL PREPAREDSTATEMENT Y EL RESULTSET
             cerrarEstados(stmt, rs);
         }
+        return list;
     };
 
     @Override
