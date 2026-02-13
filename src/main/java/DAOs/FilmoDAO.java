@@ -24,7 +24,8 @@ public class FilmoDAO extends DAO<Filmografia>{
     public FilmoDAO(DbManager db) {
         this.db = db.getConnection();
         logger.info("Se ha establecido la conexión");
-    }
+    };
+    
     @Override
     protected void cargarDatos(String met, PreparedStatement stmt, Filmografia film) throws SQLException {
         try{
@@ -155,7 +156,7 @@ public class FilmoDAO extends DAO<Filmografia>{
         PreparedStatement stmt = null;
         
         try{
-            stmt = db.prepareStatement(INSERT);
+            stmt = db.prepareStatement(UPDATE);
             cargarDatos("update", stmt, film);
             stmt.executeUpdate();
             db.commit();

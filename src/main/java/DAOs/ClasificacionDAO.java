@@ -22,8 +22,7 @@ public class ClasificacionDAO extends DAO<Clasificacion>{
     public ClasificacionDAO(DbManager db) {
         this.db = db.getConnection();
         logger.info("Se ha establecido la conexión");
-    }
-    
+    };
 
     @Override
     protected void cargarDatos(String met, PreparedStatement stmt, Clasificacion clasificacion) throws SQLException {
@@ -57,15 +56,15 @@ public class ClasificacionDAO extends DAO<Clasificacion>{
     public Clasificacion listOne(int id) throws SQLException {
         PreparedStatement stmt = null;
         ResultSet rs = null;
+        Clasificacion clasificacion = new Clasificacion();
         
         try{
             stmt = db.prepareStatement(LISTONE);
             stmt.setInt(1, id);
             rs = stmt.executeQuery();
             db.commit();
-            System.out.print(crear(rs)); 
             logger.info("Se ha hecho un ListOne");
-            return crear(rs);
+            clasificacion = crear(rs);
         }catch(SQLException e){
             hacerRollback(db);
             logger.error("Error listando elemento");
@@ -73,6 +72,7 @@ public class ClasificacionDAO extends DAO<Clasificacion>{
         }finally {
             cerrarEstados(stmt, rs);
         }
+        return clasificacion;
     };
 
     @Override
@@ -88,9 +88,7 @@ public class ClasificacionDAO extends DAO<Clasificacion>{
             while(rs.next()){
                 list.add(crear(rs));
             }
-            System.out.println(list);
             logger.info("Se ha hecho un ListAll");
-            return list;        
         }catch(SQLException e){
             hacerRollback(db);
             logger.error("Error listando elementos");
@@ -98,6 +96,7 @@ public class ClasificacionDAO extends DAO<Clasificacion>{
         }finally { // TEN EN CUENTA QUE EN UN TRY CATCH, EL FINALLY SIEMPRE SE EJECUTA AL FINAL. POR ESO MISMO, QUEREMOS QUE SIEMPRE SE CIERRA EL PREPAREDSTATEMENT Y EL RESULTSET
             cerrarEstados(stmt, rs);
         }
+        return list;        
     };
 
     @Override
@@ -123,12 +122,14 @@ public class ClasificacionDAO extends DAO<Clasificacion>{
         PreparedStatement stmt = null;
         
         try{
-            stmt = db.prepareStatement(INSERT);
+            stmt = db.prepareStatement(UPDATE);
             cargarDatos("update", stmt, clasificacion);
             stmt.executeUpdate();
             db.commit();
+            logger.info("Se ha hecho un Update");
         }catch(SQLException e){
             hacerRollback(db);
+            logger.error("Error actualizando elemento");
             throw new SQLException("Error actualizando elemento", e.getMessage());
         }finally {
             cerrarEstados(stmt, null);
@@ -143,8 +144,10 @@ public class ClasificacionDAO extends DAO<Clasificacion>{
             stmt.setInt(1, id);
             stmt.executeUpdate();
             db.commit();
+            logger.info("Se ha hecho un Delete");
         }catch(SQLException e){
             hacerRollback(db);
+            logger.error("Error eliminando elemento");
             throw new SQLException("Error eliminando elemento", e.getMessage());
         }finally {
             cerrarEstados(stmt, null);

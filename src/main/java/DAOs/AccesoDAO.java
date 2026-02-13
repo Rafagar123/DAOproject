@@ -136,7 +136,7 @@ public class AccesoDAO extends DAO<Acceso>{
         PreparedStatement stmt = null;
         
         try{
-            stmt = db.prepareStatement(INSERT);
+            stmt = db.prepareStatement(UPDATE);
             cargarDatos("update", stmt, acceso);
             stmt.executeUpdate();
             db.commit();
@@ -168,5 +168,4 @@ public class AccesoDAO extends DAO<Acceso>{
         }
     };
         
-   
 }
