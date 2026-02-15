@@ -2,7 +2,8 @@
 package DAOs;
 
 import DbManager.DbManager;
-import Models.Genero;
+
+import Models.Pais;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,39 +12,39 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class GeneroDAO1 extends DAO<Genero> {
+public class PaisDAO1 extends DAO<Pais> {
     private Connection db;
     
     private static final String INSERT =
-            "INSERT INTO genero (id, nombre) VALUES (?,?)";
+            "INSERT INTO pais (id, nombre) VALUES (?,?)";
     private static final String LISTALL =
-        "SELECT * FROM genero";
+        "SELECT * FROM pais";
 
     private static final String LISTONE =
-        "SELECT * FROM genero WHERE id = ?";
+        "SELECT * FROM pais WHERE id = ?";
 
     private static final String DELETE =
-        "DELETE FROM genero WHERE id = ?";
+        "DELETE FROM pais WHERE id = ?";
 
     private static final String UPDATE =
-        "UPDATE genero SET nombre = ? WHERE id = ?";
+        "UPDATE pais SET nombre = ? WHERE id = ?";
     
     //constructor
-    public GeneroDAO1(DbManager db) {
+    public PaisDAO1(DbManager db) {
         this.db = db.getConnection();
         logger.info("Se ha establecido la conexión");
     };
 
     @Override
-    protected void cargarDatos(String met, PreparedStatement stmt, Genero gene) throws SQLException {
+    protected void cargarDatos(String met, PreparedStatement stmt, Pais pais) throws SQLException {
         try {
             if (met == "insert"){
-                stmt.setInt(1, gene.getId());            
-                stmt.setString(2, gene.getNombre());
+                stmt.setInt(1, pais.getId());            
+                stmt.setString(2, pais.getNombre());
                
             } else if (met == "update"){
-                stmt.setInt(2, gene.getId());            
-                stmt.setString(1, gene.getNombre());
+                stmt.setInt(2, pais.getId());            
+                stmt.setString(1, pais.getNombre());
             }
      }catch (SQLException e){
             logger.error("Error cargando los datos");
@@ -52,9 +53,9 @@ public class GeneroDAO1 extends DAO<Genero> {
     };
 
     @Override
-    protected Genero crear(ResultSet rs) throws SQLException {
+    protected Pais crear(ResultSet rs) throws SQLException {
           try{
-            return new Genero(
+            return new Pais(
                 rs.getInt("id"),
                 rs.getString("nombre"));
                 
@@ -66,10 +67,10 @@ public class GeneroDAO1 extends DAO<Genero> {
     
 
     @Override
-    public Genero listOne(int id) throws SQLException {
+    public Pais listOne(int id) throws SQLException {
         PreparedStatement stmt = null;
         ResultSet rs = null;
-        Genero gene = new Genero();
+        Pais pais = new Pais();
         
         try{
             stmt = db.prepareStatement(LISTONE);
@@ -78,7 +79,7 @@ public class GeneroDAO1 extends DAO<Genero> {
             rs.next();
             db.commit();
             logger.info("Se ha hecho un ListOne");
-            gene = crear(rs);
+            pais = crear(rs);
         }catch(SQLException e){
             hacerRollback(db);
             logger.error("Error listando elemento");
@@ -86,21 +87,21 @@ public class GeneroDAO1 extends DAO<Genero> {
         }finally {
             cerrarEstados(stmt, rs);
         }
-        return gene;
+        return pais;
     }
     
 
     @Override
-    public List<Genero> listAll() throws SQLException {
+    public List<Pais> listAll() throws SQLException {
         PreparedStatement stmt = null;
         ResultSet rs = null;
-        ArrayList<Genero> listaGenero = new ArrayList<Genero>();
+        ArrayList<Pais> listaPais = new ArrayList<Pais>();
         try {
             stmt =db.prepareStatement(LISTALL);
             rs =stmt.executeQuery();
             db.commit();
             while(rs.next()) {
-                listaGenero.add(crear(rs));   
+                listaPais.add(crear(rs));   
             }
             logger.info("Se ha hecho un ListAll");
             
@@ -111,22 +112,22 @@ public class GeneroDAO1 extends DAO<Genero> {
         } finally { 
             cerrarEstados(stmt,rs);
         }
-        return listaGenero;
+        return listaPais;
     }
 
     @Override
-    public void insert(Genero gene) throws SQLException {
+    public void insert(Pais pais) throws SQLException {
         PreparedStatement stmt = null;
         try {
             stmt =db.prepareStatement(INSERT);
-            cargarDatos("INSERT", stmt, gene);
+            cargarDatos("INSERT", stmt, pais);
             stmt.executeUpdate(); //NO USAR executeQuery en INSERT, UPDATE Y DELETE
             logger.info("Se ha hecho un Insert");
             db.commit();
             
         } catch(SQLException e) {
             hacerRollback(db);
-            logger.error("Error insertando genero");
+            logger.error("Error insertando pais");
             throw new SQLException("Error insertando elemento", e.getMessage());
             
         } finally {
@@ -135,18 +136,18 @@ public class GeneroDAO1 extends DAO<Genero> {
     }
 
     @Override
-    public void update(Genero gene) throws SQLException {
+    public void update(Pais pais) throws SQLException {
             PreparedStatement stmt = null;
         try {
             stmt =db.prepareStatement(UPDATE);
-            cargarDatos("UPDATE", stmt, gene);
+            cargarDatos("UPDATE", stmt, pais);
             stmt.executeUpdate(); //NO USAR executeQuery en INSERT, UPDATE Y DELETE
             logger.info("Se ha hecho un Update");
             db.commit();
             
         } catch(SQLException e) {
             hacerRollback(db);
-            logger.error("Error actualizando genero");
+            logger.error("Error actualizando pais");
             throw new SQLException("Error actualizando elemento", e.getMessage());
             
         } finally {
